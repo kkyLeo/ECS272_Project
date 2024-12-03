@@ -3,7 +3,6 @@ import * as d3 from 'd3';
 import { useResizeObserver, useDebounceCallback } from 'usehooks-ts';
 import { InfoProps, ComponentSize, Margin, RatingRetirementGameData } from '../../../types';
 
-
 const RatingAndRetirementPieChart: React.FC<InfoProps> = ({ gameName }) => {
     const [gameData, setRatingRetirementGameData] = useState<RatingRetirementGameData | null>(null);
     const chartRef = useRef<HTMLDivElement>(null);
@@ -18,7 +17,7 @@ const RatingAndRetirementPieChart: React.FC<InfoProps> = ({ gameName }) => {
         const loadRatingRetirementGameData = async () => {
             try {
                 const csvData = await d3.csv('../../data/GamesInfo.csv', d => {
-                // Removing the '%' symbol and converting to a number
+                    // Removing the '%' symbol and converting to a number
                     const averageRating = d['Average Rating'] ? parseFloat(d['Average Rating'].replace('%', '')) : 0;
                     const retirementRate = d['Retirement'] ? parseFloat(d['Retirement'].replace('%', '')) : 0;
 
@@ -90,14 +89,24 @@ const RatingAndRetirementPieChart: React.FC<InfoProps> = ({ gameName }) => {
             .attr('text-anchor', 'middle')
             .attr('dy', '2.5em')
             .attr('fill', 'white')
+            .style('font-weight', 'bold')
             .style('font-size', '14px')
             .text(labelSuffix);
     }
 
     return (
         <div ref={chartRef} className='chart-container' style={{ width: '100%', height: '400px', display: 'flex', flexDirection: 'row', justifyContent: 'space-around' }}>
-            <svg id='average-rating-pie' width='50%' height='100%'></svg>
-            <svg id='retirement-rate-pie' width='50%' height='100%'></svg>
+            {/* Container for Average Rating Pie Chart */}
+            <div style={{ width: '50%', textAlign: 'center' }}>
+                <h3 style={{ color: 'white', marginBottom: '10px' }}>Overall Rating</h3>
+                <svg id='average-rating-pie' width='100%' height='100%'></svg>
+            </div>
+
+            {/* Container for Retirement Rate Pie Chart */}
+            <div style={{ width: '50%', textAlign: 'center' }}>
+                <h3 style={{ color: 'white', marginBottom: '10px' }}>Overall Retirement</h3>
+                <svg id='retirement-rate-pie' width='100%' height='100%'></svg>
+            </div>
         </div>
     );
 };
