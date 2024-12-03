@@ -1,0 +1,15 @@
+/* Ensure the whole page background is black */
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #282828;
+    color: white;
+    height: 100%;
+}
+
+  /* Apply the background to the entire app container */
+.app-container {
+    background-color: #282828;
+    min-height: 100vh;
+    padding-bottom: 20px;
+}
