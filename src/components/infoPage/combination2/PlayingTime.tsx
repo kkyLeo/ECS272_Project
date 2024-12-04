@@ -134,6 +134,7 @@ const PlatformPlaytimeHeatMap: React.FC<PlaytimeHeatMapProps> = ({ gameName, sel
             .attr('text-anchor', 'middle')
             .style('font-size', '16px')
             .style('fill', 'white')
+            .style('font-weight', 'bold')
             .text('Platform Playtime Heat Map');
     }
 

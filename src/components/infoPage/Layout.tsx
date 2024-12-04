@@ -2,6 +2,7 @@ import React from 'react';
 import Grid from '@mui/material/Grid';
 import { useParams } from 'react-router-dom';
 import TextInfo from './TextInfo';
+import GenreNetworkGraph from './Network';
 import Combination1 from './combination1/Combination1';
 import Combination2 from './combination2/Combination2';
 
@@ -46,16 +47,21 @@ const Layout: React.FC = () => {
                                 value={selectedCombination}
                                 style={{ backgroundColor: 'grey', color: 'white', padding: '10px', borderRadius: '5px' }}
                             >
-                                <option value="combination1">Rating & Retirement Analysis</option>
-                                <option value="combination2">Platform Playtime & Players</option>
+                                <option value="combination1">Rating & Retirement</option>
+                                <option value="combination2">Playtime & Platforms</option>
+                                <option value="networkGraph">Genre Map</option>
                             </select>
                         </div>
 
                         {/* Visualizations based on selected combination */}
-                        {selectedCombination === 'combination1' ? (
+                        {selectedCombination === 'combination1' && (
                             <Combination1 gameName={gameName} />
-                        ) : (
+                        )}
+                        {selectedCombination === 'combination2' && (
                             <Combination2 gameName={gameName} />
+                        )}
+                        {selectedCombination === 'networkGraph' && (
+                            <GenreNetworkGraph gameName={gameName} />
                         )}
                     </Grid>
                 </>

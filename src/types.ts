@@ -49,3 +49,15 @@ export interface PlaytimeData {
     Fastest: number;
     Slowest: number;
 }
+
+export interface NodeData {
+    id: string;
+    type: 'game' | 'genre';
+    isCurrentGame?: boolean;
+    sharesAllGenres?: boolean;
+}
+
+export interface LinkData {
+    source: string;
+    target: string;
+}

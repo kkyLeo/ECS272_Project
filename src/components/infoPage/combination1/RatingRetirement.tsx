@@ -7,7 +7,7 @@ const RatingAndRetirementPieChart: React.FC<InfoProps> = ({ gameName }) => {
     const [gameData, setRatingRetirementGameData] = useState<RatingRetirementGameData | null>(null);
     const chartRef = useRef<HTMLDivElement>(null);
     const [size, setSize] = useState<ComponentSize>({ width: 0, height: 0 });
-    const margin: Margin = { top: 20, right: 20, bottom: 20, left: 20 };
+    const margin: Margin = { top: 20, right: 20, bottom: -5, left: 20 };
 
     const onResize = useDebounceCallback((size: ComponentSize) => setSize(size), 200);
     useResizeObserver({ ref: chartRef, onResize });
