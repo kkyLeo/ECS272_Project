@@ -183,7 +183,7 @@ const ListView: React.FC = () => {
                                                 { category: 'Main', value: game.mainStoryTime },
                                             ]}
                                             width={300}
-                                            height={100}
+                                            height={110}
                                             title="Avg PlayTime v.s. Main Story Time"
                                         />
                                     </div>
