@@ -3,25 +3,25 @@ import * as d3 from 'd3';
 import { csv } from 'd3-fetch';
 import { InfoProps, PlayersNumberData } from '../../../types';
 
-const PlatformPlayersBarChart: React.FC<InfoProps> = ({ gameName }) => {
+interface PlayersBarChartProps extends InfoProps {
+    selectedPlatforms: string[];
+    setSelectedPlatforms: (platforms: string[]) => void;
+}
+
+const PlatformPlayersBarChart: React.FC<PlayersBarChartProps> = ({ gameName, selectedPlatforms, setSelectedPlatforms }) => {
     const [gameData, setPlayersNumberData] = useState<PlayersNumberData[]>([]);
     const barChartRef = useRef<HTMLDivElement>(null);
+    const legendRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        // Load CSV data asynchronously using d3.csv
         const loadPlayersNumberData = async () => {
             try {
                 const csvData = await csv('/data/GamesPlatform.csv'); // Adjust the path as needed
-
-                // Filter the data for the selected game
                 const filteredData = csvData.filter((d) => d.Title === gameName);
-
-                // Extract relevant columns for the players information
                 const playersData: PlayersNumberData[] = filteredData.map((d) => ({
                     Platform: d.Platform,
-                    Players: +d.Players, // Convert to number
+                    Players: +d.Players,
                 }));
-
                 setPlayersNumberData(playersData);
             } catch (error) {
                 console.error('Error loading CSV:', error);
@@ -36,18 +36,18 @@ const PlatformPlayersBarChart: React.FC<InfoProps> = ({ gameName }) => {
     useEffect(() => {
         if (gameData.length > 0) {
             drawBarChart();
+            drawLegend();
         }
-    }, [gameData]);
+    }, [gameData, selectedPlatforms]);
 
     function drawBarChart() {
         if (!barChartRef.current) return;
 
         const margin = { top: 20, right: 50, bottom: 50, left: 150 };
-        const barHeight = 30; // Fixed height per bar
+        const barHeight = 30;
         const width = 600 - margin.left - margin.right;
         const height = gameData.length * barHeight + margin.top + margin.bottom;
 
-        // Clear previous SVG elements before rendering new ones
         d3.select(barChartRef.current).selectAll('*').remove();
 
         const svg = d3.select(barChartRef.current)
@@ -57,38 +57,22 @@ const PlatformPlayersBarChart: React.FC<InfoProps> = ({ gameName }) => {
             .append('g')
             .attr('transform', `translate(${margin.left},${margin.top})`);
 
-        // Extracting unique platforms and their corresponding player counts
         const platforms = gameData.map((d) => d.Platform);
         const players = gameData.map((d) => d.Players);
 
-        // yScale for platforms
-        const yScale = d3.scaleBand()
-            .domain(platforms)
-            .range([0, gameData.length * barHeight])
-            .padding(0.2);
-
-        // xScale for number of players
+        const yScale = d3.scaleBand().domain(platforms).range([0, gameData.length * barHeight]).padding(0.2);
         const xMax = d3.max(players) || 0;
         const xScale = d3.scaleLinear().domain([0, xMax]).range([0, width]);
 
-        // Custom color palette for platforms
         const customColors = ['#8B0000', '#1E90FF', '#FF8C00', '#4B0082', '#006400', '#FFD700'];
-        const colorScale = (index: number) => customColors[index % customColors.length];
 
-        // Draw y-axis
-        svg.append('g')
-            .call(d3.axisLeft(yScale))
-            .selectAll('text')
-            .style('fill', 'white');
-
-        // Draw x-axis
+        svg.append('g').call(d3.axisLeft(yScale)).selectAll('text').style('fill', 'white');
         svg.append('g')
             .attr('transform', `translate(0, ${gameData.length * barHeight})`)
-            .call(d3.axisBottom(xScale).ticks(6)) // Limit number of ticks for readability
+            .call(d3.axisBottom(xScale).ticks(6))
             .selectAll('text')
             .style('fill', 'white');
 
-        // Draw the bars for each platform
         svg.selectAll('rect')
             .data(gameData)
             .enter()
@@ -97,26 +81,83 @@ const PlatformPlayersBarChart: React.FC<InfoProps> = ({ gameName }) => {
             .attr('x', 0)
             .attr('height', yScale.bandwidth())
             .attr('width', (d) => xScale(d.Players))
-            .attr('fill', (d, i) => colorScale(i));
+            .attr('fill', (d, i) =>
+                selectedPlatforms.length === 0 || selectedPlatforms.includes(d.Platform)
+                    ? customColors[i % customColors.length]
+                    : 'none' // Make unselected bars transparent
+            );
 
-        // Add value labels to each bar
         svg.selectAll('text.bar-label')
             .data(gameData)
             .enter()
             .append('text')
             .attr('class', 'bar-label')
-            .attr('x', (d) => Math.min(xScale(d.Players) + 5, width - 50)) // Ensure label stays within chart area
+            .attr('x', (d) => Math.min(xScale(d.Players) + 5, width - 50))
             .attr('y', (d) => yScale(d.Platform)! + yScale.bandwidth() / 2)
             .attr('text-anchor', 'start')
             .attr('dominant-baseline', 'middle')
-            .attr('fill', 'white')
+            .attr('fill', (d: PlayersNumberData) =>
+                selectedPlatforms.length === 0 || selectedPlatforms.includes(d.Platform) ? 'white' : 'none' // Hide label if transparent
+            )
             .style('font-size', '12px')
             .style('font-weight', 'bold')
             .text((d) => d.Players);
     }
 
+    function drawLegend() {
+        if (!legendRef.current) return;
+    
+        d3.select(legendRef.current).selectAll('*').remove();
+    
+        const platforms = gameData.map((d) => d.Platform);
+        const customColors = ['#8B0000', '#1E90FF', '#FF8C00', '#4B0082', '#006400', '#FFD700'];
+    
+        // Create the legend container
+        const legend = d3.select(legendRef.current)
+            .append('div')
+            .attr('class', 'legend-container')
+            .style('display', 'flex')
+            .style('flex-wrap', 'wrap') // Enable wrapping of legend items
+            .style('gap', '10px') // Add some space between items
+            .style('align-items', 'center');
+    
+        // Create individual legend items
+        platforms.forEach((platform, i) => {
+            const legendItem = legend.append('div')
+                .attr('class', 'legend-item')
+                .style('display', 'flex')
+                .style('align-items', 'center')
+                .style('cursor', 'pointer')
+                .on('click', () => {
+                    // Toggle selection of platform
+                    const updatedPlatforms = selectedPlatforms.includes(platform)
+                        ? selectedPlatforms.filter((p) => p !== platform)
+                        : [...selectedPlatforms, platform];
+                    setSelectedPlatforms(updatedPlatforms);
+                });
+    
+            legendItem.append('div')
+                .style('width', '20px')
+                .style('height', '20px')
+                .style('background-color', selectedPlatforms.includes(platform) ? customColors[i % customColors.length] : 'none')
+                .style('border', `1px solid ${customColors[i % customColors.length]}`)
+                .style('margin-right', '10px');
+    
+            legendItem.append('span')
+                .style('color', 'white')
+                .style('font-size', '14px')
+                .text(platform);
+        });
+    }
+    
+
     return (
-        <div ref={barChartRef} className='bar-chart-container' style={{ width: '100%', height: 'auto' }}>
+        <div className='bar-chart-container' style={{ width: '100%', height: 'auto' }}>
+            <h3 style={{ color: 'white', textAlign: 'center', marginBottom: '20px' }}>
+                Distribution of Players in Different Platforms
+            </h3>
+            <div ref={legendRef} style={{ marginTop: '20px' }}></div>
+            <div ref={barChartRef}></div>
         </div>
     );
 };

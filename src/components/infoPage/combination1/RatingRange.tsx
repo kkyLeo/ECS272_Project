@@ -7,7 +7,7 @@ const RatingDistributionBarChart: React.FC<InfoProps> = ({ gameName }) => {
     const [gameData, setRatingData] = useState<RatingData[]>([]);
     const barRef = useRef<HTMLDivElement>(null);
     const [size, setSize] = useState<ComponentSize>({ width: 0, height: 0 });
-    const margin: Margin = { top: 40, right: 20, bottom: 100, left: 60 };
+    const margin: Margin = { top: 50, right: 20, bottom: 80, left: 60 };
 
     const onResize = useDebounceCallback((size: ComponentSize) => setSize(size), 200);
     useResizeObserver({ ref: barRef, onResize });
