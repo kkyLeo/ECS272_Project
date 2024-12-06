@@ -53,8 +53,9 @@ The `combination2` folder is used for displaying **Platform-Specific Playing Tim
 To run the project locally:
 1. Clone the repository from GitHub.
 2. Install dependencies using `npm install`.
-3. Start the development server with `npm start`.
-4. Open your browser and navigate to `http://localhost:3000` to access the tool.
+3. Install additional packages: Run `npm install react-router-dom` to install the router package used in the project.
+4. Start the development server with `npm run dev`.
+5. Open your browser and navigate to `http://localhost:3000` to access the tool.
 
 ### User Instructions
 - **Overview Page**: 
