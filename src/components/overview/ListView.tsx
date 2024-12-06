@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as d3 from 'd3';
+import { useNavigate } from 'react-router-dom';
 import GroupedBarChart from './GroupedBarChart';
 import '../../styles/SliderStyle.css'; // Import the custom CSS for the slider
 
@@ -14,6 +15,7 @@ const ListView: React.FC = () => {
     const [availableYears, setAvailableYears] = useState<string[]>([]);
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
     const [transitionEffect, setTransitionEffect] = useState(false); // For animation
+    const navigate = useNavigate();
 
     const labels = {
         backlogged: 'Logged',
@@ -65,6 +67,11 @@ const ListView: React.FC = () => {
             setCurrentDataset(clickedDataset);
             setTransitionEffect(false); // End animation
         }, 500); // Duration of animation
+    };
+
+    // Handle game click to navigate to part 2
+    const handleGameClick = (gameName: string) => {
+        navigate(`/game-info/${encodeURIComponent(gameName)}`);
     };
 
     // Handle keydown event to control the year slider
@@ -167,7 +174,7 @@ const ListView: React.FC = () => {
                                     }}
                                 >
                                     <div style={{ flex: 1, paddingRight: '20px' }}>
-                                        <strong>{index + 1}. {game.gameName}</strong>
+                                        <li onClick={() => handleGameClick(game.gameName)} style={{ cursor: 'pointer', color: '#00bcd4' }}>{index + 1}. {game.gameName} </li>
                                         <p style={{ color: '#bbb' }}>
                                             {labels[currentDataset]}: 
                                             {currentDataset === 'rated' ? game.score :
